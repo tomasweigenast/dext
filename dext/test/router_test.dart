@@ -26,7 +26,7 @@ void main() {
       router.get("/users/:userId", emptyHandler);
       router.all("/users/:userId", emptyHandler, routeName: "fallback");
 
-      expect(router.match("/users/userId", HttpMethod.post)!.node.name, equals("fallback"));
+      expect(router.match("/users/userId", HttpMethod.post).node.name, equals("fallback"));
     });
 
     test("global fallback route", () {
@@ -34,7 +34,7 @@ void main() {
       router.post("/users/:userId", emptyHandler);
       router.all("*", emptyHandler, routeName: "notFound");
 
-      expect(router.match("/users/userId", HttpMethod.get)!.node.name, equals("notFound"));
+      expect(router.match("/users/userId", HttpMethod.get).node.name, equals("notFound"));
     });
   });
 }

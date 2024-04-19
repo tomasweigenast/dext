@@ -42,7 +42,7 @@ final class Router {
     methodTree.addRoute(path, handler, routeName);
   }
 
-  RouteMatch? match(String path, HttpMethod method) {
+  RouteMatch match(String path, HttpMethod method) {
     final methodTree = _trees[method] ?? _trees[HttpMethod.$all];
 
     // in this case we should throw an error that is returned to the client because
@@ -52,6 +52,9 @@ final class Router {
       throw NoRouteException(path, method);
     }
 
-    return methodTree.matchRoute(path);
+    final routeMatch = methodTree.matchRoute(path);
+    if (routeMatch == null) return match(path, HttpMethod.$all);
+
+    return routeMatch;
   }
 }

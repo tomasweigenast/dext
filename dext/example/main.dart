@@ -1,18 +1,18 @@
 import 'dart:io';
 
-import 'package:dext/dext.dart';
+import 'server.dart';
 
 Future<void> main() async {
-  final server = Server.localhost();
+  final server = Server();
 
   ProcessSignal.sigint.watch().listen((signal) async {
     print("Received signal $signal, shutting down gracefully...");
-    await server.stop();
+    await server.shutdown();
     print("Server stopped.");
     exit(0);
   });
 
-  await server.run();
+  await server.run(InternetAddress.loopbackIPv4, 2020);
 
-  print("Server started.");
+  print("Server started at ${InternetAddress.loopbackIPv4.address}:2020");
 }

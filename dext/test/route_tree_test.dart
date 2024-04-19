@@ -1,21 +1,20 @@
-import 'dart:async';
-
-import 'package:dext/src/message.dart';
 import 'package:dext/src/router/tree.dart';
 import 'package:test/test.dart';
+
+import 'utils.dart';
 
 void main() {
   group('RouteTree', () {
     test("match root", () {
       final tree = RouteTree();
-      tree.addRoute("/", _emptyHandler);
+      tree.addRoute("/", emptyHandler);
       expect(tree.matchRoute('/'), isNotNull);
     });
 
     test("match full path", () {
       final tree = RouteTree();
-      tree.addRoute("/api/users", _emptyHandler);
-      tree.addRoute("/api/users/abc", _emptyHandler);
+      tree.addRoute("/api/users", emptyHandler);
+      tree.addRoute("/api/users/abc", emptyHandler);
 
       expect(tree.matchRoute("/api/users"), isNotNull);
       expect(tree.matchRoute("/api/users/"), isNotNull);
@@ -23,7 +22,7 @@ void main() {
 
     test("partial matches does not work", () {
       final tree = RouteTree();
-      tree.addRoute("/api/users/abc", _emptyHandler);
+      tree.addRoute("/api/users/abc", emptyHandler);
 
       expect(tree.matchRoute("/api/users"), isNull);
       expect(tree.matchRoute("/api/users/"), isNull);
@@ -31,9 +30,9 @@ void main() {
 
     test("route parameters", () {
       final tree = RouteTree();
-      tree.addRoute("/api/users", _emptyHandler);
-      tree.addRoute("/api/users/:userId/payments/:paymentId", _emptyHandler);
-      tree.addRoute("/api/users/:userId/orders/:orderId", _emptyHandler);
+      tree.addRoute("/api/users", emptyHandler);
+      tree.addRoute("/api/users/:userId/payments/:paymentId", emptyHandler);
+      tree.addRoute("/api/users/:userId/orders/:orderId", emptyHandler);
 
       expect(tree.matchRoute("/api/users/123/payments"), isNull);
       expect(
@@ -46,7 +45,7 @@ void main() {
 
     test("skip trailing slash", () {
       final tree = RouteTree();
-      tree.addRoute("/api/users", _emptyHandler, "users");
+      tree.addRoute("/api/users", emptyHandler, "users");
 
       expect(tree.matchRoute("/api/users/"), isNotNull);
       expect(tree.matchRoute("/api/users"), isNotNull);
@@ -54,10 +53,10 @@ void main() {
 
     test("wildcard matching", () {
       final tree = RouteTree();
-      tree.addRoute("/api/users", _emptyHandler, "users");
-      tree.addRoute("/api/*", _emptyHandler, "api");
-      tree.addRoute("/dashboard/*/payments", _emptyHandler, "payments");
-      tree.addRoute("*", _emptyHandler, "global");
+      tree.addRoute("/api/users", emptyHandler, "users");
+      tree.addRoute("/api/*", emptyHandler, "api");
+      tree.addRoute("/dashboard/*/payments", emptyHandler, "payments");
+      tree.addRoute("*", emptyHandler, "global");
 
       expect(tree.matchRoute("/api/users/")!.node.name, equals("users"));
       expect(tree.matchRoute("/api/hello")!.node.name, equals("api"));
@@ -68,7 +67,7 @@ void main() {
 
     test("regex parameter matching", () {
       final tree = RouteTree();
-      tree.addRoute(r"/api/users/:userId[^[0-9]+$]", _emptyHandler, "users");
+      tree.addRoute(r"/api/users/:userId[^[0-9]+$]", emptyHandler, "users");
 
       expect(tree.matchRoute("/api/users/asd"), isNull);
       expect(tree.matchRoute("/api/users/123"), isNotNull);
@@ -79,8 +78,8 @@ void main() {
 
     test("multiple parameters same route", () {
       final tree = RouteTree();
-      tree.addRoute(r"/api/users/:userId[^[0-9]+$]", _emptyHandler, "usersNumber");
-      tree.addRoute(r"/api/users/:userId", _emptyHandler, "users");
+      tree.addRoute(r"/api/users/:userId[^[0-9]+$]", emptyHandler, "usersNumber");
+      tree.addRoute(r"/api/users/:userId", emptyHandler, "users");
 
       expect(tree.matchRoute("/api/users/asd")!.node.name, equals("users"));
       expect(tree.matchRoute("/api/users/123")!.node.name, equals("usersNumber"));
@@ -89,5 +88,3 @@ void main() {
     });
   });
 }
-
-FutureOr<Response> _emptyHandler(Request request) => Response();

@@ -1,7 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:dext/src/body.dart';
 import 'package:dext/src/http_method.dart';
 import 'package:dext/src/message.dart';
 import 'package:dext/src/router/router.dart';
@@ -16,7 +15,7 @@ abstract class BaseServer {
 
   /// Starts the server listening on [address]
   Future<void> run(InternetAddress host, int port) async {
-    assert(_server == null, "Server already started.");
+    if (_server != null) throw StateError("Server already started.");
 
     // setup server
     configureRoutes(_router);
@@ -27,37 +26,51 @@ abstract class BaseServer {
   }
 
   Future<void> shutdown() async {
-    assert(_server != null, "Server has not been started.");
-
+    if (_server == null) throw StateError("Server has not been started.");
     await _server!.close();
   }
 
   Future<void> _onRequest(HttpRequest innerRequest) async {
     final uri = innerRequest.uri;
-    print("Request received: $uri");
+    print("Received request: $uri");
 
     final routeMatch = _router.match(uri.toString(),
         HttpMethod.values.firstWhere((element) => element.verb.toLowerCase() == innerRequest.method.toLowerCase()));
 
-    final buffer = await innerRequest.fold(Uint8List(0), (previous, element) {
-      final newBuffer = Uint8List(previous.length + element.length);
-      newBuffer.setRange(0, previous.length, previous);
-      newBuffer.setRange(previous.length, element.length, element);
-      return newBuffer;
+    // todo: if using BytesContent consider using content-length to allocate a initial buffer and then concat
+    // each buffer.
+    // final buffer = await innerRequest.fold(Uint8List(0), (previous, element) {
+    //   final newBuffer = Uint8List(previous.length + element.length);
+    //   newBuffer.setRange(0, previous.length, previous);
+    //   newBuffer.setRange(previous.length, element.length, element);
+    //   return newBuffer;
+    // });
+
+    Body? requestBody;
+    requestBody = StreamContent(innerRequest);
+
+    final headers = <String, List<String>>{};
+    innerRequest.headers.forEach((name, values) {
+      headers[name] = values;
     });
-    print("Buffer: $buffer [raw: ${utf8.decode(buffer)}]");
 
     final request = Request(
       uri: innerRequest.uri,
       query: innerRequest.uri.queryParameters,
       parameters: routeMatch.parameters,
+      body: requestBody,
+      headers: headers,
     );
 
     final response = await routeMatch.node.routeHandler!(request);
     innerRequest.response.statusCode = response.statusCode;
-    // innerRequest.response.headers.contentType = response.contentType;
-    // if (response.body != null) innerRequest.response.add(response.body!);
-    // innerRequest.response.writeln("""{"status": "success"}""");
+    innerRequest.response.contentLength = response.contentLength ?? -1;
+    innerRequest.response.bufferOutput = true;
+    if (response.contentLength == null) {
+      innerRequest.response.headers.set(HttpHeaders.transferEncodingHeader, 'chunked');
+    }
+
+    await innerRequest.response.addStream(response.read());
     await innerRequest.response.close();
   }
 

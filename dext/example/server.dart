@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dext/src/base_server.dart';
 import 'package:dext/src/body.dart';
 import 'package:dext/src/message.dart';
@@ -13,7 +15,8 @@ final class Server extends BaseServer {
   @override
   void configureRoutes(Router router) {
     router.get("/users", (request) => Response.ok(body: StringContent("list of users")));
-    router.get("/users/:userId", (request) => Response.ok(body: StringContent("user: ${request.parameters["userId"]}")));
+    router.get("/users/:userId", (request) => Response.ok(body: StringContent.json({"user": request.parameters["userId"]})));
+    router.get("/users/:userId/payments", (request) => Response.ok(body: StreamContent(Stream.value(utf8.encode("hello guys")))));
     router.all("*", (request) => Response.notFound(body: StringContent("not found")));
   }
 }

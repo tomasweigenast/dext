@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+final _emptyBody = BytesContent(Uint8List(0));
+
 sealed class Body {
   /// The total size of the body.
   ///
@@ -23,6 +25,8 @@ sealed class Body {
     _stream = null;
     return stream!;
   }
+
+  factory Body.empty() => _emptyBody;
 }
 
 final class StringContent extends Body {

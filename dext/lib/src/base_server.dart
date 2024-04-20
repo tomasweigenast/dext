@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dext/src/http_method.dart';
 import 'package:dext/src/message.dart';
@@ -37,6 +39,14 @@ abstract class BaseServer {
     final routeMatch = _router.match(uri.toString(),
         HttpMethod.values.firstWhere((element) => element.verb.toLowerCase() == innerRequest.method.toLowerCase()));
 
+    final buffer = await innerRequest.fold(Uint8List(0), (previous, element) {
+      final newBuffer = Uint8List(previous.length + element.length);
+      newBuffer.setRange(0, previous.length, previous);
+      newBuffer.setRange(previous.length, element.length, element);
+      return newBuffer;
+    });
+    print("Buffer: $buffer [raw: ${utf8.decode(buffer)}]");
+
     final request = Request(
       uri: innerRequest.uri,
       query: innerRequest.uri.queryParameters,
@@ -45,8 +55,8 @@ abstract class BaseServer {
 
     final response = await routeMatch.node.routeHandler!(request);
     innerRequest.response.statusCode = response.statusCode;
-    innerRequest.response.headers.contentType = response.contentType;
-    if (response.body != null) innerRequest.response.add(response.body!);
+    // innerRequest.response.headers.contentType = response.contentType;
+    // if (response.body != null) innerRequest.response.add(response.body!);
     // innerRequest.response.writeln("""{"status": "success"}""");
     await innerRequest.response.close();
   }

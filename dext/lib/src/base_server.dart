@@ -6,6 +6,7 @@ import 'package:dext/src/logger.dart';
 import 'package:dext/src/message.dart';
 import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/router.dart';
+import 'package:http_parser/http_parser.dart';
 
 part 'root_handler.dart';
 

@@ -8,6 +8,7 @@ void _handleRequests(Stream<HttpRequest> requests, RouteHandler rootHandler) {
 Future<void> _onRequest(HttpRequest rootRequest, RouteHandler rootHandler) async {
   BaseServer.logger.debug("Request to ${rootRequest.uri.path}");
 
+  // Execute response
   final response = await rootHandler(_transformRequest(rootRequest));
 
   // configure outgoing response
@@ -15,6 +16,8 @@ Future<void> _onRequest(HttpRequest rootRequest, RouteHandler rootHandler) async
   rootRequest.response.contentLength = response.contentLength ?? -1;
   rootRequest.response.headers.contentType = response.contentType;
   rootRequest.response.bufferOutput = true;
+
+  // set chunked encoding if length is not known
   if (response.contentLength == null) {
     rootRequest.response.headers.set(HttpHeaders.transferEncodingHeader, 'chunked');
   }

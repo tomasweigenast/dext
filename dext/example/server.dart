@@ -6,6 +6,7 @@ import 'package:dext/src/context.dart';
 import 'package:dext/src/message.dart';
 import 'package:dext/src/router/router.dart';
 
+import 'middlewares/log_middleware.dart';
 import 'routes/api/users/[userId].dart';
 
 final class Server extends BaseServer {
@@ -24,6 +25,6 @@ final class Server extends BaseServer {
       return Response.ok(body: StringContent.json(result.toJson()));
     });
     router.get("/users/:userId/payments", (request) => Response.ok(body: StreamContent(Stream.value(utf8.encode("hello guys")))));
-    router.all("*", (request) => Response.notFound(body: StringContent("not found")));
+    router.all("*", (request) => Response.notFound(body: StringContent("not found")), middleware: logMiddleware());
   }
 }

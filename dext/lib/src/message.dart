@@ -53,10 +53,21 @@ final class Response extends HttpMessage {
 
   Response({
     this.statusCode = HttpStatus.ok,
+    super.headers,
     super.body,
   });
 
   Response.ok({Body? body}) : this(statusCode: HttpStatus.ok, body: body);
   Response.notFound({Body? body}) : this(statusCode: HttpStatus.notFound, body: body);
   Response.badRequest({Body? body}) : this(statusCode: HttpStatus.badRequest, body: body);
+
+  Response copyWith({
+    Body? body,
+    int? statusCode,
+    Map<String, String>? headers,
+  }) =>
+      Response(
+        body: body ?? _body,
+        statusCode: statusCode ?? this.statusCode,
+      );
 }

@@ -2,10 +2,17 @@ import 'dart:io';
 
 import 'package:dext/src/body.dart';
 import 'package:dext/src/http_method.dart';
+import 'package:dext/src/logger.dart';
 import 'package:dext/src/message.dart';
+import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/router.dart';
 
+part 'root_handler.dart';
+
 abstract class BaseServer {
+  /// The default logger of the server
+  static const Logger logger = Logger(name: "server");
+
   final Router _router = Router();
 
   HttpServer? _server;
@@ -22,7 +29,12 @@ abstract class BaseServer {
 
     // startup
     _server = await HttpServer.bind(host, port);
-    _server!.listen(_onRequest);
+
+    // handle requests
+    // TODO: support multiple threads
+    _handleRequests(_server!, _rootRouteHandler);
+
+    logger.info("Server started at ${InternetAddress.loopbackIPv4.address}:2020");
   }
 
   Future<void> shutdown() async {
@@ -30,51 +42,15 @@ abstract class BaseServer {
     await _server!.close();
   }
 
-  Future<void> _onRequest(HttpRequest innerRequest) async {
-    final uri = innerRequest.uri;
-    print("Received request: $uri");
-
-    final routeMatch = _router.match(uri.toString(),
-        HttpMethod.values.firstWhere((element) => element.verb.toLowerCase() == innerRequest.method.toLowerCase()));
-
-    // todo: if using BytesContent consider using content-length to allocate a initial buffer and then concat
-    // each buffer.
-    // final buffer = await innerRequest.fold(Uint8List(0), (previous, element) {
-    //   final newBuffer = Uint8List(previous.length + element.length);
-    //   newBuffer.setRange(0, previous.length, previous);
-    //   newBuffer.setRange(previous.length, element.length, element);
-    //   return newBuffer;
-    // });
-
-    Body? requestBody;
-    requestBody = StreamContent(innerRequest);
-
-    final headers = <String, List<String>>{};
-    innerRequest.headers.forEach((name, values) {
-      headers[name] = values;
-    });
-
-    final request = Request(
-      uri: innerRequest.uri,
-      query: innerRequest.uri.queryParameters,
-      parameters: routeMatch.parameters,
-      body: requestBody,
-      headers: headers,
-    );
-
-    final response = await routeMatch.node.routeHandler!(request);
-    innerRequest.response.statusCode = response.statusCode;
-    innerRequest.response.contentLength = response.contentLength ?? -1;
-    innerRequest.response.bufferOutput = true;
-    if (response.contentLength == null) {
-      innerRequest.response.headers.set(HttpHeaders.transferEncodingHeader, 'chunked');
-    }
-
-    await innerRequest.response.addStream(response.read());
-    await innerRequest.response.close();
-  }
-
   void configureRoutes(Router router);
+
+  Future<Response> _rootRouteHandler(Request request) async {
+    // TODO: after adding websockets, maybe this step is not neccessary and can be added back to root_handler.dart _onRequest method
+    final routeMatch = _router.match(request.uri.toString(), request.method);
+    return routeMatch.node.routeHandler!(request.copyWith(
+      parameters: routeMatch.parameters,
+    ));
+  }
 }
 
 final class ServerSettings {

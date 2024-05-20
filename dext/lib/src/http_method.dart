@@ -1,16 +1,23 @@
 enum HttpMethod {
-  get._("GET"),
-  post._("POST"),
-  put._("PUT"),
-  delete._("DELETE"),
-  head._("HEAD"),
-  patch._("PATCH"),
-  $all._(r"$ALL");
+  get,
+  post,
+  put,
+  delete,
+  head,
+  patch,
+  $all;
 
-  final String verb;
+  static const _map = <String, HttpMethod>{
+    "get": get,
+    "post": post,
+    "put": put,
+    "delete": delete,
+    "head": head,
+    "patch": patch,
+  };
 
-  const HttpMethod._(this.verb);
-
-  @override
-  String toString() => verb;
+  static HttpMethod? find(String method) {
+    method = method.toLowerCase();
+    return _map[method];
+  }
 }

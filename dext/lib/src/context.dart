@@ -4,4 +4,6 @@ final class Context {
   final Map<String, dynamic> params;
 
   const Context._({required this.params});
+
+  factory Context.def() => Context._(params: {});
 }

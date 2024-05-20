@@ -13,6 +13,4 @@ Future<void> main() async {
   });
 
   await server.run(InternetAddress.loopbackIPv4, 2020);
-
-  print("Server started at ${InternetAddress.loopbackIPv4.address}:2020");
 }

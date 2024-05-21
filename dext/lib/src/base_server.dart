@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:dext/src/body.dart';
+import 'package:dext/src/errors/http_error.dart';
 import 'package:dext/src/http_method.dart';
 import 'package:dext/src/logger.dart';
 import 'package:dext/src/message.dart';
 import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/router.dart';
-import 'package:http_parser/http_parser.dart';
 
 part 'root_handler.dart';
 
@@ -33,7 +33,7 @@ abstract class BaseServer {
 
     // handle requests
     // TODO: support multiple threads
-    _handleRequests(_server!, _rootRouteHandler);
+    _handleRequests(_server!, _errorHandlerMiddleware(_rootRouteHandler));
 
     logger.info("Server started at ${InternetAddress.loopbackIPv4.address}:2020");
   }
@@ -51,6 +51,21 @@ abstract class BaseServer {
     return routeMatch.node.routeHandler!(request.copyWith(
       parameters: routeMatch.parameters,
     ));
+  }
+
+  RouteHandler _errorHandlerMiddleware(RouteHandler inner) {
+    return (request) async {
+      try {
+        return await inner(request);
+      } on HttpError catch (httpError) {
+        return Response(statusCode: httpError.statusCode);
+      } catch (err) {
+        return Response(
+          statusCode: HttpStatus.internalServerError,
+          body: StringContent("An unhandled exception occurred."),
+        );
+      }
+    };
   }
 }
 

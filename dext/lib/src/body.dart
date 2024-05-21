@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-final _emptyBody = BytesContent(Uint8List(0));
+final _emptyBuffer = Uint8List(0);
 
 sealed class Body {
+  Stream<List<int>>? _stream;
+
   /// The total size of the body.
   ///
   /// If this is null, it is calculated when the response is build.
@@ -12,7 +14,6 @@ sealed class Body {
 
   /// The [ContentType] of the response.
   final ContentType contentType;
-  Stream<List<int>>? _stream;
 
   Body(this._stream, this.contentLength, this.contentType);
 
@@ -26,7 +27,7 @@ sealed class Body {
     return stream!;
   }
 
-  factory Body.empty() => _emptyBody;
+  factory Body.empty() => BytesContent(_emptyBuffer);
 }
 
 final class StringContent extends Body {

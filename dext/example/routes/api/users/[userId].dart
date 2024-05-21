@@ -9,6 +9,10 @@ import '../../../models/user.dart';
 // this will handled as /api/users/{userId}
 final class UsersController extends Controller {
   Future<User> get(Context context, String userId) async {
+    if (userId == "123") {
+      notFound();
+    }
+
     return User(id: userId, name: "User Name", email: "user_name@mail.com");
   }
 

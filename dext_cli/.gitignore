@@ -1,0 +1,10 @@
+# https://dart.dev/guides/libraries/private-files
+# Created by `dart pub`
+.dart_tool/
+
+# Generated files
+*.freezed.dart
+*.g.dart
+
+# ignore this example folder because it is meant for tests only
+example

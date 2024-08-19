@@ -16,8 +16,8 @@ final class Headers extends UnmodifiableMapView<String, List<String>> {
             .map((e) => MapEntry(e.key, List.unmodifiable(e.value))))));
 
   factory Headers.empty() => _emptyHeaders;
-  factory Headers.from([Map<String, List<String>>? values]) {
-    if (values == null || values.isEmpty) {
+  factory Headers.from(Map<String, List<String>> values) {
+    if (values.isEmpty) {
       return _emptyHeaders;
     } else if (values is Headers) {
       return values;

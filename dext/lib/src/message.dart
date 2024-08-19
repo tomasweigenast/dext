@@ -21,9 +21,9 @@ abstract class HttpMessage<T> {
 
   ContentType? get contentType => _body.contentType;
 
-  Map<String, String> get headers => _headers.flatten;
+  Headers get headers => _headers;
 
-  HttpMessage({Body<T>? body, Map<String, List<String>>? headers})
+  HttpMessage({Body<T>? body, Map<String, List<String>> headers = const {}})
       : _body = body ?? Body.empty(),
         _headers = Headers.from(headers);
 
@@ -35,7 +35,7 @@ abstract class HttpMessage<T> {
   }
 }
 
-final class Request extends HttpMessage {
+final class Request<T> extends HttpMessage<T> {
   final Map<String, String> parameters;
   final Map<String, String> query;
   final Uri uri;
@@ -52,7 +52,7 @@ final class Request extends HttpMessage {
     super.headers,
   });
 
-  Request copyWith({Map<String, String>? parameters, Map<String, String>? query}) => Request(
+  Request<T> copyWith({Map<String, String>? parameters, Map<String, String>? query}) => Request<T>(
         parameters: parameters ?? this.parameters,
         query: query ?? this.query,
         method: method,
@@ -77,14 +77,14 @@ final class Response<T> extends HttpMessage<T> {
   Response.notFound({Body<T>? body}) : this(statusCode: HttpStatus.notFound, body: body);
   Response.badRequest({Body<T>? body}) : this(statusCode: HttpStatus.badRequest, body: body);
 
-  Response copyWith({
+  Response<T> copyWith({
     Body<T>? body,
     int? statusCode,
-    Map<String, String>? headers,
+    Headers? headers,
   }) =>
       Response(
         body: body ?? _body,
         statusCode: statusCode ?? this.statusCode,
-        // headers: , // TODO: add copy of headers
+        headers: headers ?? this.headers,
       );
 }

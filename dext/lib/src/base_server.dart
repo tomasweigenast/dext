@@ -7,6 +7,7 @@ import 'package:dext/src/errors/http_error.dart';
 import 'package:dext/src/http_method.dart';
 import 'package:dext/src/logger.dart';
 import 'package:dext/src/message.dart';
+import 'package:dext/src/pipeline.dart';
 import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/router.dart';
 
@@ -17,7 +18,7 @@ abstract class BaseServer {
   /// The default logger of the server
   static const Logger logger = Logger(name: "server");
 
-  final Router _router = Router();
+  // final Router _router = Router();
   final DependencyCollection _dependencyCollection = DependencyCollection();
 
   HttpServer? _server;
@@ -29,20 +30,28 @@ abstract class BaseServer {
   DependencyCollection get services => _dependencyCollection;
 
   /// Starts the server listening on [address]
-  Future<void> run(InternetAddress host, int port) async {
-    if (_server != null) throw StateError("Server already started.");
+  Future<void> run(InternetAddress host, int port) {
+    Router router = Router();
 
     // setup server
-    configureRoutes(_router);
+    final pipeline = Pipeline(router.handle).addMiddleware(_errorHandlerMiddleware);
+    configureMiddleware(pipeline);
+    configureRoutes(router);
+
+    return runPipeline(host, port, pipeline);
+  }
+
+  Future<void> runPipeline(InternetAddress host, int port, Pipeline pipeline) async {
+    if (_server != null) throw StateError("Server already started.");
 
     // startup
     _server = await HttpServer.bind(host, port);
 
     // handle requests
     // TODO: support multiple threads
-    _handleRequests(_server!, _errorHandlerMiddleware(_rootRouteHandler));
+    _handleRequests(_server!, pipeline.handler);
 
-    logger.info("Server started at ${InternetAddress.loopbackIPv4.address}:2020");
+    logger.info("Server started at ${InternetAddress.loopbackIPv4.address}:$port");
   }
 
   Future<void> shutdown() async {
@@ -51,14 +60,7 @@ abstract class BaseServer {
   }
 
   void configureRoutes(Router router);
-
-  Future<Response> _rootRouteHandler(Request request) async {
-    // TODO: after adding websockets, maybe this step is not neccessary and can be added back to root_handler.dart _onRequest method
-    final routeMatch = _router.match(request.uri.toString(), request.method);
-    return routeMatch.node.routeHandler!(request.copyWith(
-      parameters: routeMatch.parameters,
-    ));
-  }
+  void configureMiddleware(Pipeline pipeline);
 
   RouteHandler _errorHandlerMiddleware(RouteHandler inner) {
     return (request) async {

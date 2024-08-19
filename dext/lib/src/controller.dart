@@ -10,5 +10,6 @@ abstract class Controller {
   late final Request request;
 }
 
+Never badRequest() => throw BadRequestError();
 Never notFound() => throw NotFoundError();
 Never internalServerError() => throw InternalError();

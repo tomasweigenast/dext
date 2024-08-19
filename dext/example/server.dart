@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:dext/src/base_server.dart';
 import 'package:dext/src/body.dart';
 import 'package:dext/src/message.dart';
+import 'package:dext/src/pipeline.dart';
 import 'package:dext/src/router/router.dart';
 
 import 'logger/logger_base.dart';
 import 'middlewares/log_middleware.dart';
+import 'middlewares/request_id_middleware.dart';
 import 'models/update_user.dart';
 import 'routes/api/users/[userId]/index.dart';
 import 'routes/api/users/[userId]/payments/index.dart' as $payments;
@@ -46,7 +48,13 @@ final class Server extends BaseServer {
       );
       return Response.ok(body: StringContent.json(result));
     });
-    router.post("/api/auth", (request) => $auth_login.post());
+    router.post("/api/auth", (request) => $auth_login.post(request));
     router.all("*", (request) => Response.notFound(body: StringContent("not found")), middleware: logMiddleware());
+  }
+
+  @override
+  void configureMiddleware(Pipeline pipeline) {
+    pipeline.addMiddleware(logMiddleware());
+    pipeline.addMiddleware(requestId());
   }
 }

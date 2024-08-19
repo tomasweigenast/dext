@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:dext/src/exception/no_route_exception.dart';
 import 'package:dext/src/http_method.dart';
+import 'package:dext/src/message.dart';
 import 'package:dext/src/middleware.dart';
 import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/route_match.dart';
@@ -46,8 +49,6 @@ final class Router {
     methodTree.addRoute(path, handler, routeName);
   }
 
-  void use(String path, Middleware middleware) {}
-
   RouteMatch match(String path, HttpMethod method) {
     final methodTree = _trees[method] ?? _trees[HttpMethod.$all];
 
@@ -62,5 +63,12 @@ final class Router {
     if (routeMatch == null) return match(path, HttpMethod.$all);
 
     return routeMatch;
+  }
+
+  FutureOr<Response> handle(Request request) {
+    final routeMatch = match(request.uri.toString(), request.method);
+    return routeMatch.node.routeHandler!(request.copyWith(
+      parameters: routeMatch.parameters,
+    ));
   }
 }

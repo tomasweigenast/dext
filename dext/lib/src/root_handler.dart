@@ -15,6 +15,9 @@ Future<void> _onRequest(HttpRequest rootRequest, RouteHandler rootHandler) async
   rootRequest.response.statusCode = response.statusCode;
   rootRequest.response.contentLength = response.contentLength ?? -1;
   rootRequest.response.headers.contentType = response.contentType;
+  response.headers.forEach((key, value) {
+    rootRequest.response.headers.add(key, value);
+  });
   rootRequest.response.bufferOutput = true;
 
   // set chunked encoding if length is not known

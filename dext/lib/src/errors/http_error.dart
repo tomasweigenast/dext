@@ -20,3 +20,7 @@ final class InternalError extends HttpError {
 final class NotFoundError extends HttpError {
   NotFoundError() : super(statusCode: HttpStatus.notFound);
 }
+
+final class BadRequestError extends HttpError {
+  BadRequestError() : super(statusCode: HttpStatus.badRequest);
+}

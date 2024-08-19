@@ -52,14 +52,20 @@ final class Request<T> extends HttpMessage<T> {
     super.headers,
   });
 
-  Request<T> copyWith({Map<String, String>? parameters, Map<String, String>? query}) => Request<T>(
+  Request<T> copyWith({
+    Map<String, String>? parameters,
+    Map<String, String>? query,
+    Headers? headers,
+    Context? context,
+  }) =>
+      Request<T>(
         parameters: parameters ?? this.parameters,
         query: query ?? this.query,
         method: method,
-        context: context,
+        context: context ?? this.context,
         uri: uri,
         body: _body,
-        headers: _headers,
+        headers: headers ?? _headers,
       );
 }
 

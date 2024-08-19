@@ -13,7 +13,7 @@ sealed class Body<T> {
   final int? contentLength;
 
   /// The [ContentType] of the response.
-  final ContentType contentType;
+  final ContentType? contentType;
 
   Body(this._stream, this.contentLength, this.contentType);
 

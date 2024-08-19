@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dext/src/base_server.dart';
 import 'package:dext/src/body.dart';
 import 'package:dext/src/message.dart';
@@ -5,6 +7,7 @@ import 'package:dext/src/router/router.dart';
 
 import 'logger/logger_base.dart';
 import 'middlewares/log_middleware.dart';
+import 'models/update_user.dart';
 import 'routes/api/users/[userId]/index.dart';
 import 'routes/api/users/[userId]/payments/index.dart' as $payments;
 import 'routes/api/users/index.dart' as $users;
@@ -27,6 +30,13 @@ final class Server extends BaseServer {
       final controller = UserIdController(this);
       controller.request = request;
       final result = await controller.get(request.parameters["userId"]!);
+      return Response.ok(body: StringContent.json(result.toJson()));
+    });
+    router.patch("/api/users/:userId", (request) async {
+      final controller = UserIdController(this);
+      final UpdateUser body = UpdateUser.fromJson(jsonDecode(await request.readAsString()));
+      controller.request = request;
+      final result = await controller.patch(request.parameters["userId"]!, body);
       return Response.ok(body: StringContent.json(result.toJson()));
     });
     router.get("/api/users/:userId/payments", (request) async {

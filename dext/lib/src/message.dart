@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dext/dext.dart';
@@ -6,14 +7,19 @@ import 'package:dext/src/headers.dart';
 import 'package:dext/src/http_method.dart';
 
 abstract class HttpMessage<T> {
-  /// The body
   final Body<T> _body;
-
   final Headers _headers;
+
+  Encoding? get encoding {
+    var contentType = _body.contentType;
+    if (contentType == null) return null;
+    if (!contentType.parameters.containsKey('charset')) return null;
+    return Encoding.getByName(contentType.parameters['charset']);
+  }
 
   int? get contentLength => _body.contentLength;
 
-  ContentType get contentType => _body.contentType;
+  ContentType? get contentType => _body.contentType;
 
   Map<String, String> get headers => _headers.flatten;
 
@@ -22,6 +28,11 @@ abstract class HttpMessage<T> {
         _headers = Headers.from(headers);
 
   Stream<List<int>> read() => _body.read();
+
+  Future<String> readAsString([Encoding? encoding]) async {
+    encoding ??= this.encoding ?? utf8;
+    return encoding.decodeStream(read());
+  }
 }
 
 final class Request extends HttpMessage {

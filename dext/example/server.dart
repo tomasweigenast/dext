@@ -8,7 +8,7 @@ import 'middlewares/log_middleware.dart';
 import 'routes/api/users/[userId]/index.dart';
 import 'routes/api/users/[userId]/payments/index.dart' as $payments;
 import 'routes/api/users/index.dart' as $users;
-import 'routes/api/auth/login.dart' as $authLogin;
+import 'routes/api/auth/login.dart' as $auth_login;
 
 final class Server extends BaseServer {
   @override
@@ -36,7 +36,7 @@ final class Server extends BaseServer {
       );
       return Response.ok(body: StringContent.json(result));
     });
-    router.post("/api/auth", (request) => $authLogin.post());
+    router.post("/api/auth", (request) => $auth_login.post());
     router.all("*", (request) => Response.notFound(body: StringContent("not found")), middleware: logMiddleware());
   }
 }

@@ -1,6 +1,8 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:dext/src/body.dart';
+import 'package:dext/src/dependency_injection/dependency_collection.dart';
 import 'package:dext/src/errors/http_error.dart';
 import 'package:dext/src/http_method.dart';
 import 'package:dext/src/logger.dart';
@@ -9,17 +11,22 @@ import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/router.dart';
 
 part 'root_handler.dart';
+part 'context.dart';
 
 abstract class BaseServer {
   /// The default logger of the server
   static const Logger logger = Logger(name: "server");
 
   final Router _router = Router();
+  final DependencyCollection _dependencyCollection = DependencyCollection();
 
   HttpServer? _server;
 
   /// The global settings for the server
   ServerSettings get settings;
+
+  /// Provides the list of registered services
+  DependencyCollection get services => _dependencyCollection;
 
   /// Starts the server listening on [address]
   Future<void> run(InternetAddress host, int port) async {

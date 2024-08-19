@@ -1,0 +1,8 @@
+settings:
+  router:
+    path: routes # The folder where the routes are.
+    static:
+      path: static # The path where the static files are.
+      prefix: files # To access files in static folder, prefix route with /files/
+  ssr:
+    viewsPath: routes/views # Path to the folder where SSR views are.

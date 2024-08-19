@@ -57,5 +57,6 @@ Request _transformRequest(HttpRequest request) {
     body: requestBody,
     headers: headers,
     method: requestMethod,
+    context: Context._(),
   );
 }

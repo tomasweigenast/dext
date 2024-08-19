@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dext/dext.dart';
 import 'package:dext/src/body.dart';
 import 'package:dext/src/headers.dart';
 import 'package:dext/src/http_method.dart';
@@ -28,12 +29,14 @@ final class Request extends HttpMessage {
   final Map<String, String> query;
   final Uri uri;
   final HttpMethod method;
+  final Context context;
 
   Request({
     required this.uri,
     required this.parameters,
     required this.query,
     required this.method,
+    required this.context,
     super.body,
     super.headers,
   });
@@ -42,6 +45,7 @@ final class Request extends HttpMessage {
         parameters: parameters ?? this.parameters,
         query: query ?? this.query,
         method: method,
+        context: context,
         uri: uri,
         body: _body,
         headers: _headers,

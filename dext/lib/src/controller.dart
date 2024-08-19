@@ -1,11 +1,14 @@
-import 'package:dext/src/context.dart';
+import 'package:dext/dext.dart';
 import 'package:dext/src/errors/http_error.dart';
+import 'package:dext/src/message.dart';
 
 abstract class Controller {
   /// The request's context
-  late final Context context;
+  Context get context => request.context;
 
-  Never notFound() => throw NotFoundError();
-
-  Never internalServerError() => throw InternalError();
+  /// The http request that is going to handle this controller
+  late final Request request;
 }
+
+Never notFound() => throw NotFoundError();
+Never internalServerError() => throw InternalError();

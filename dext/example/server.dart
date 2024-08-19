@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dext/src/base_server.dart';
 import 'package:dext/src/body.dart';
 import 'package:dext/src/message.dart';
@@ -7,9 +5,9 @@ import 'package:dext/src/router/router.dart';
 
 import 'logger/logger_base.dart';
 import 'middlewares/log_middleware.dart';
-import 'routes/api/users/index.dart' as $users;
 import 'routes/api/users/[userId]/index.dart';
 import 'routes/api/users/[userId]/payments/index.dart' as $payments;
+import 'routes/api/users/index.dart' as $users;
 
 final class Server extends BaseServer {
   @override

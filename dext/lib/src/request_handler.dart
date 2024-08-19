@@ -29,6 +29,7 @@ Future<void> _onRequest(HttpRequest rootRequest, RouteHandler rootHandler) async
   await rootRequest.response.close();
 }
 
+@pragma('vm:prefer-inline')
 Request _transformRequest(HttpRequest request) {
   final headers = <String, List<String>>{};
   request.headers.forEach((name, values) {

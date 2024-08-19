@@ -13,14 +13,3 @@ final class Pipeline {
     return this;
   }
 }
-/*
-class _Pipeline extends Pipeline {
-  final Middleware _middleware;
-  final Middleware _parent;
-
-  _Pipeline(this._middleware, this._parent);
-
-  @override
-  Handler addHandler(Handler handler) => _parent(_middleware(handler));
-}
- */

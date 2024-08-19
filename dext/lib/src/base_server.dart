@@ -11,7 +11,7 @@ import 'package:dext/src/pipeline.dart';
 import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/router.dart';
 
-part 'root_handler.dart';
+part 'request_handler.dart';
 part 'context.dart';
 
 abstract class BaseServer {

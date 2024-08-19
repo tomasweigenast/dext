@@ -7,8 +7,8 @@ import 'package:dext/src/pipeline.dart';
 import 'package:dext/src/router/router.dart';
 
 import 'logger/logger_base.dart';
-import 'middlewares/log_middleware.dart';
-import 'middlewares/request_id_middleware.dart';
+import 'middlewares/log.dart';
+import 'middlewares/request_id.dart';
 import 'models/update_user.dart';
 import 'routes/api/users/[userId]/index.dart';
 import 'routes/api/users/[userId]/payments/index.dart' as $payments;
@@ -16,12 +16,6 @@ import 'routes/api/users/index.dart' as $users;
 import 'routes/api/auth/login.dart' as $auth_login;
 
 final class Server extends BaseServer {
-  @override
-  ServerSettings get settings => const ServerSettings(
-        routesFolder: "routes",
-        staticFolder: "static",
-      );
-
   @override
   void configureRoutes(Router router) {
     router.get("/api/users", (request) async {
@@ -49,12 +43,12 @@ final class Server extends BaseServer {
       return Response.ok(body: StringContent.json(result));
     });
     router.post("/api/auth", (request) => $auth_login.post(request));
-    router.all("*", (request) => Response.notFound(body: StringContent("not found")), middleware: logMiddleware());
+    router.all("*", (request) => Response.notFound(body: StringContent("not found")));
   }
 
   @override
   void configureMiddleware(Pipeline pipeline) {
-    pipeline.addMiddleware(logMiddleware());
+    pipeline.addMiddleware(log());
     pipeline.addMiddleware(requestId());
   }
 }

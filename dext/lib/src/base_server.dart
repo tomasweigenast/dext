@@ -23,9 +23,6 @@ abstract class BaseServer {
 
   HttpServer? _server;
 
-  /// The global settings for the server
-  ServerSettings get settings;
-
   /// Provides the list of registered services
   DependencyCollection get services => _dependencyCollection;
 
@@ -48,7 +45,7 @@ abstract class BaseServer {
     _server = await HttpServer.bind(host, port);
 
     // handle requests
-    // TODO: support multiple threads
+    // TODO: support multiple threads (isolates)
     _handleRequests(_server!, pipeline.handler);
 
     logger.info("Server started at ${InternetAddress.loopbackIPv4.address}:$port");

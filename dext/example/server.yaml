@@ -1,4 +1,6 @@
 settings:
+  server:
+    autoCompress: true
   router:
     path: routes # The folder where the routes are.
     static:

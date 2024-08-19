@@ -5,9 +5,9 @@ import 'package:dext/src/body.dart';
 import 'package:dext/src/headers.dart';
 import 'package:dext/src/http_method.dart';
 
-abstract class HttpMessage {
+abstract class HttpMessage<T> {
   /// The body
-  final Body _body;
+  final Body<T> _body;
 
   final Headers _headers;
 
@@ -17,7 +17,7 @@ abstract class HttpMessage {
 
   Map<String, String> get headers => _headers.flatten;
 
-  HttpMessage({Body? body, Map<String, List<String>>? headers})
+  HttpMessage({Body<T>? body, Map<String, List<String>>? headers})
       : _body = body ?? Body.empty(),
         _headers = Headers.from(headers);
 
@@ -52,7 +52,7 @@ final class Request extends HttpMessage {
       );
 }
 
-final class Response extends HttpMessage {
+final class Response<T> extends HttpMessage<T> {
   final int statusCode;
 
   Response({
@@ -61,17 +61,19 @@ final class Response extends HttpMessage {
     super.body,
   });
 
-  Response.ok({Body? body}) : this(statusCode: HttpStatus.ok, body: body);
-  Response.notFound({Body? body}) : this(statusCode: HttpStatus.notFound, body: body);
-  Response.badRequest({Body? body}) : this(statusCode: HttpStatus.badRequest, body: body);
+  Response.okd(T data) : this.ok(body: StringContent.json(data));
+  Response.ok({Body<T>? body}) : this(statusCode: HttpStatus.ok, body: body);
+  Response.notFound({Body<T>? body}) : this(statusCode: HttpStatus.notFound, body: body);
+  Response.badRequest({Body<T>? body}) : this(statusCode: HttpStatus.badRequest, body: body);
 
   Response copyWith({
-    Body? body,
+    Body<T>? body,
     int? statusCode,
     Map<String, String>? headers,
   }) =>
       Response(
         body: body ?? _body,
         statusCode: statusCode ?? this.statusCode,
+        // headers: , // TODO: add copy of headers
       );
 }

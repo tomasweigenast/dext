@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 final _emptyBuffer = Uint8List(0);
 
-sealed class Body {
+sealed class Body<T> {
   Stream<List<int>>? _stream;
 
   /// The total size of the body.
@@ -27,10 +27,10 @@ sealed class Body {
     return stream!;
   }
 
-  factory Body.empty() => BytesContent(_emptyBuffer);
+  factory Body.empty() => BytesContent<Never>(_emptyBuffer);
 }
 
-final class StringContent extends Body {
+final class StringContent<T> extends Body<T> {
   StringContent._(super._stream, super.contentLength, super.contentType);
 
   factory StringContent(String content, {Encoding encoding = utf8, ContentType? contentType}) {
@@ -41,7 +41,7 @@ final class StringContent extends Body {
   }
 
   /// A special constructor that encodes [value] as json and sets the content type to [ContentType.json] if [contentType] is not set.
-  factory StringContent.json(dynamic value, {Encoding encoding = utf8, ContentType? contentType}) {
+  factory StringContent.json(T value, {Encoding encoding = utf8, ContentType? contentType}) {
     contentType ??= ContentType.json;
     final buffer = encoding.encode(jsonEncode(value));
     final stream = Stream<List<int>>.value(buffer);
@@ -49,7 +49,7 @@ final class StringContent extends Body {
   }
 }
 
-final class BytesContent extends Body {
+final class BytesContent<T> extends Body<T> {
   BytesContent._(super._stream, super.contentLength, super.contentType);
 
   factory BytesContent(Uint8List buffer, {ContentType? contentType}) {
@@ -59,7 +59,7 @@ final class BytesContent extends Body {
   }
 }
 
-final class StreamContent extends Body {
+final class StreamContent<T> extends Body<T> {
   StreamContent._(super.stream, super.contentLength, super.contentType);
 
   factory StreamContent(Stream<List<int>> stream, {ContentType? contentType}) {

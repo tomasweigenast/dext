@@ -8,6 +8,7 @@ import 'middlewares/log_middleware.dart';
 import 'routes/api/users/[userId]/index.dart';
 import 'routes/api/users/[userId]/payments/index.dart' as $payments;
 import 'routes/api/users/index.dart' as $users;
+import 'routes/api/auth/login.dart' as $authLogin;
 
 final class Server extends BaseServer {
   @override
@@ -18,23 +19,24 @@ final class Server extends BaseServer {
 
   @override
   void configureRoutes(Router router) {
-    router.get("/users", (request) async {
+    router.get("/api/users", (request) async {
       final result = await $users.get();
       return Response.ok(body: StringContent.json(result.map((user) => user.toJson()).toList()));
     });
-    router.get("/users/:userId", (request) async {
+    router.get("/api/users/:userId", (request) async {
       final controller = UserIdController(this);
       controller.request = request;
       final result = await controller.get(request.parameters["userId"]!);
       return Response.ok(body: StringContent.json(result.toJson()));
     });
-    router.get("/users/:userId/payments", (request) async {
+    router.get("/api/users/:userId/payments", (request) async {
       final result = await $payments.get(
         request.parameters["userId"]!,
         services.mustResolve<LoggerBase>(),
       );
       return Response.ok(body: StringContent.json(result));
     });
+    router.post("/api/auth", (request) => $authLogin.post());
     router.all("*", (request) => Response.notFound(body: StringContent("not found")), middleware: logMiddleware());
   }
 }

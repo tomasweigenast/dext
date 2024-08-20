@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dext/src/constants.dart';
 import 'package:dext/src/exception/no_route_exception.dart';
 import 'package:dext/src/http_method.dart';
 import 'package:dext/src/message.dart';
@@ -67,7 +68,11 @@ final class Router {
 
   FutureOr<Response> handle(Request request) {
     final routeMatch = match(request.uri.toString(), request.method);
-    request.parameters.addAll(routeMatch.parameters);
+    if (kImmutableTypes) {
+      request = request.copyWith(parameters: routeMatch.parameters);
+    } else {
+      request.parameters.addAll(routeMatch.parameters);
+    }
     return routeMatch.node.routeHandler!(request);
   }
 }

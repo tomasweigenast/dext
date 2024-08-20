@@ -45,20 +45,16 @@ Request _transformRequest(HttpRequest request) {
   //   return newBuffer;
   // });
 
-  Body? requestBody;
-  requestBody = StreamContent(request);
-
   final requestMethod = HttpMethod.find(request.method);
   if (requestMethod == null) {
     throw StateError("Unsupported HTTP method: ${request.method}");
     // TODO: add better error type
   }
 
-  return Request(
-    uri: request.uri,
-    query: request.uri.queryParameters,
+  return Request.fromStream(
+    request,
     parameters: {},
-    body: requestBody,
+    uri: request.uri,
     headers: headers,
     method: requestMethod,
     context: Context._(),

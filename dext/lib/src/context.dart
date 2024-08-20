@@ -2,22 +2,18 @@ part of 'base_server.dart';
 
 /// Context represents the execution context of a single request.
 final class Context {
-  /// A map of parameters that are passed between middlewares
-  final Map<String, dynamic> params;
+  /// A map of data that are passed between middlewares
+  final Map<String, dynamic> data;
 
-  /// Metadata that can be passed between middlewares
-  final Map<String, dynamic> metadata;
+  Context._({Map<String, dynamic>? data}) : data = data == null ? DynamicMap(kImmutableTypes ? const {} : {}) : DynamicMap(data);
 
-  Context._({Map<String, dynamic>? params, Map<String, dynamic>? metadata})
-      : params = params ?? {},
-        metadata = metadata ?? {};
-
-  Context copyWith({
-    Map<String, dynamic>? params,
-    Map<String, dynamic>? metadata,
-  }) =>
-      Context._(
-        params: params,
-        metadata: metadata,
+  Context copyWith({Map<String, dynamic>? data}) => Context._(
+        data: data ?? this.data,
       );
+
+  dynamic operator [](String key) => data[key];
+
+  void operator []=(String key, dynamic value) {
+    data[key] = value;
+  }
 }

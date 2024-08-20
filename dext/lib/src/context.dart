@@ -8,16 +8,16 @@ final class Context {
   /// Metadata that can be passed between middlewares
   final Map<String, dynamic> metadata;
 
-  Context._({Map<String, dynamic> params = const {}, Map<String, dynamic> metadata = const {}})
-      : params = UnmodifiableMapView(params),
-        metadata = UnmodifiableMapView(metadata);
+  Context._({Map<String, dynamic>? params, Map<String, dynamic>? metadata})
+      : params = params ?? {},
+        metadata = metadata ?? {};
 
   Context copyWith({
     Map<String, dynamic>? params,
     Map<String, dynamic>? metadata,
   }) =>
       Context._(
-        params: params == null ? this.params : UnmodifiableMapView(params),
-        metadata: metadata == null ? this.metadata : UnmodifiableMapView(metadata),
+        params: params,
+        metadata: metadata,
       );
 }

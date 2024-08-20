@@ -9,9 +9,10 @@ import 'package:dext/src/http_method.dart';
 abstract class HttpMessage<T> {
   final Body<T> _body;
   final Headers _headers;
+  ContentType? _contentType;
 
   Encoding? get encoding {
-    var contentType = _body.contentType;
+    var contentType = _contentType;
     if (contentType == null) return null;
     if (!contentType.parameters.containsKey('charset')) return null;
     return Encoding.getByName(contentType.parameters['charset']);
@@ -19,9 +20,17 @@ abstract class HttpMessage<T> {
 
   int? get contentLength => _body.contentLength;
 
-  ContentType? get contentType => _body.contentType;
+  ContentType? get contentType {
+    if (_contentType != null) return _contentType;
+    final headerValue = _headers.flatten[HttpHeaders.contentTypeHeader];
+    if (headerValue == null) return null;
+    _contentType = ContentType.parse(headerValue);
+    return _contentType;
+  }
 
-  Headers get headers => _headers;
+  Headers get headersAll => _headers;
+
+  Map<String, String> get headers => _headers.flatten;
 
   HttpMessage({Body<T>? body, Map<String, List<String>> headers = const {}})
       : _body = body ?? Body.empty(),
@@ -51,22 +60,6 @@ final class Request<T> extends HttpMessage<T> {
     super.body,
     super.headers,
   });
-
-  Request<T> copyWith({
-    Map<String, String>? parameters,
-    Map<String, String>? query,
-    Headers? headers,
-    Context? context,
-  }) =>
-      Request<T>(
-        parameters: parameters ?? this.parameters,
-        query: query ?? this.query,
-        method: method,
-        context: context ?? this.context,
-        uri: uri,
-        body: _body,
-        headers: headers ?? _headers,
-      );
 }
 
 final class Response<T> extends HttpMessage<T> {
@@ -82,15 +75,4 @@ final class Response<T> extends HttpMessage<T> {
   Response.ok({Body<T>? body}) : this(statusCode: HttpStatus.ok, body: body);
   Response.notFound({Body<T>? body}) : this(statusCode: HttpStatus.notFound, body: body);
   Response.badRequest({Body<T>? body}) : this(statusCode: HttpStatus.badRequest, body: body);
-
-  Response<T> copyWith({
-    Body<T>? body,
-    int? statusCode,
-    Headers? headers,
-  }) =>
-      Response(
-        body: body ?? _body,
-        statusCode: statusCode ?? this.statusCode,
-        headers: headers ?? this.headers,
-      );
 }

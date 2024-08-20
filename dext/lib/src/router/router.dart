@@ -67,8 +67,7 @@ final class Router {
 
   FutureOr<Response> handle(Request request) {
     final routeMatch = match(request.uri.toString(), request.method);
-    return routeMatch.node.routeHandler!(request.copyWith(
-      parameters: routeMatch.parameters,
-    ));
+    request.parameters.addAll(routeMatch.parameters);
+    return routeMatch.node.routeHandler!(request);
   }
 }

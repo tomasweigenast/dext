@@ -4,11 +4,11 @@ import 'package:http_parser/http_parser.dart';
 
 final _emptyHeaders = Headers._empty();
 
-final class Headers extends UnmodifiableMapView<String, List<String>> {
+final class Headers extends MapView<String, List<String>> {
   late final Map<String, String> flatten =
       UnmodifiableMapView(CaseInsensitiveMap.from(map((key, value) => MapEntry(key, value.join(",")))));
 
-  Headers._empty() : super(const {});
+  Headers._empty() : super({});
 
   Headers._(Map<String, List<String>> values)
       : super(CaseInsensitiveMap.from(Map.fromEntries(values.entries

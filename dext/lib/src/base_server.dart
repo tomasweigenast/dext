@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:dext/src/body.dart';
@@ -13,8 +12,8 @@ import 'package:dext/src/pipeline.dart';
 import 'package:dext/src/router/route_handler.dart';
 import 'package:dext/src/router/router.dart';
 
-part 'request_handler.dart';
 part 'context.dart';
+part 'request_handler.dart';
 
 abstract class BaseServer {
   /// The default logger of the server
